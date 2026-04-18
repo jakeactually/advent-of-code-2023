@@ -1,29 +1,17 @@
 import re
 
-head_regex = r'Game (\d+)'
-set_regex = r'(\d+) (red|green|blue)'
-
-def set_is_valid(amount, color):
-    match color:
-        case 'red':
-            return int(amount) <= 12
-        case 'green':
-            return int(amount) <= 13
-        case 'blue':
-            return int(amount) <= 14
+red_regex = r'(\d+) red'
+blue_regex = r'(\d+) blue'
+green_regex = r'(\d+) green'
 
 with open('input.txt') as input:
     total = 0
 
     for line in input:
-        game_id = re.findall(head_regex, line)
-        sets = re.findall(set_regex, line)
-
-        valid = all(
-            set_is_valid(amount, color) for amount, color in sets
-        )
-
-        if valid:
-            total += int(game_id[0])
-
+        reds = [int(red) for red in re.findall(red_regex, line)]
+        blues = [int(blue) for blue in re.findall(blue_regex, line)]
+        greens = [int(green) for green in re.findall(green_regex, line)]
+        powers = max(reds) * max(blues) * max(greens)
+        total += powers
+    
     print(total)
