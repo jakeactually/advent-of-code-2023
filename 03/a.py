@@ -1,10 +1,3 @@
-from enum import Enum
-
-class State(Enum):
-    IDLE = 0
-    PARSING = 1
-    INVALID = 2
-
 neighbors_offsets = [
     (-1, -1), (0, -1), (1, -1),
     (-1, 0),           (1, 0),
@@ -17,7 +10,7 @@ def is_coord_in_limits(x, y, width, height):
 with open('input.txt') as input:
     matrix = [list(line.strip()) for line in input]
     height = len(matrix)
-    state = State.IDLE
+    is_part_number = False
     buffer = ''
     total = 0
 
@@ -27,23 +20,21 @@ with open('input.txt') as input:
         for x in range(width):
             chr = matrix[y][x]
 
-            if chr.isdigit() and state != State.INVALID:
-                state = State.PARSING
-
+            if chr.isdigit():
                 neighbors = [
                     matrix[y + dy][x + dx] for dx, dy in neighbors_offsets if is_coord_in_limits(x + dx, y + dy, width, height)
                 ]
 
                 if not all(neighbor == '.' or neighbor.isdigit() for neighbor in neighbors):
-                    state = State.INVALID
+                    is_part_number = True
 
                 buffer += chr
             
             if not chr.isdigit():
-                if state == State.PARSING:
+                if is_part_number:
                     total += int(buffer)
                 
                 buffer = ''
-                state = State.IDLE
+                is_part_number = False
     
     print(total)
