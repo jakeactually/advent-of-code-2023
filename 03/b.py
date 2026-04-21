@@ -10,9 +10,9 @@ def is_coord_in_limits(x, y, width, height):
 with open('input.txt') as input:
     matrix = [list(line.strip()) for line in input]
     height = len(matrix)
-    is_part_number = False
+    gears_dict = {}
+    gears_buffer = []
     buffer = ''
-    total = 0
 
     for y in range(height):
         width = len(matrix[y])
@@ -22,19 +22,31 @@ with open('input.txt') as input:
 
             if chr.isdigit():
                 neighbors = [
-                    matrix[y + dy][x + dx] for dx, dy in neighbors_offsets if is_coord_in_limits(x + dx, y + dy, width, height)
+                    (y + dy, x + dx)
+                    for dx, dy in neighbors_offsets
+                    if is_coord_in_limits(x + dx, y + dy, width, height)
                 ]
 
-                if not all(neighbor == '.' or neighbor.isdigit() for neighbor in neighbors):
-                    is_part_number = True
+                for ny, nx in neighbors:
+                    if matrix[ny][nx] == '*':
+                        gears_buffer.append((nx, ny))
 
                 buffer += chr
             
             if not chr.isdigit():
-                if is_part_number:
-                    total += int(buffer)
+                for gear in gears_buffer:
+                    if gear not in gears_dict:
+                        gears_dict[gear] = set()
+                    
+                    gears_dict[gear].add(int(buffer))
                 
                 buffer = ''
-                is_part_number = False
+                gears_buffer = []
     
+    total = 0
+
+    for gear, numbers in gears_dict.items():
+        if len(numbers) == 2:
+            total += numbers.pop() * numbers.pop()
+
     print(total)
