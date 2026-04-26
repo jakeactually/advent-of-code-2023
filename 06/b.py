@@ -1,13 +1,11 @@
-import pandas as pd
+import re
 
 with open('input.txt') as input:
-    time_distance = pd.read_table(input, index_col=0, header=None, sep=r'\s+')
+    lines = input.read().splitlines()
+    time = int(''.join(re.findall(r'\d+', lines[0])))
+    distance = int(''.join(re.findall(r'\d+', lines[1])))
 
-    for label, content in time_distance.items():
-        time = content['Time:']
-        distance = content['Distance:']
-
-        for i in range(time):
-            if i * (time - i) > distance:
-                print(time + 1 - i * 2)
-                break
+    for i in range(time):
+        if i * (time - i) > distance:
+            print(time + 1 - i * 2)
+            break
