@@ -10,18 +10,18 @@ card_ranks = {
     '8': 8,
     '9': 9,
     'T': 10,
-    'J': 11,
+    'J': 1,
     'Q': 12,
     'K': 13,
     'A': 14
 }
 
-five_of_a_kind = re.compile(r'(\w)\1{4}')
-four_of_a_kind = re.compile(r'(\w)\1{3}')
-full_house = re.compile(r'(\w)\1{2}(\w)\2|(\w)\3(\w)\4{2}')
-three_of_a_kind = re.compile(r'(\w)\1{2}')
+five_of_a_kind = re.compile(r'(\w)\1{4}|(\w)\2{3}Z|(\w)\3{2}ZZ|(\w)\4ZZZ|ZZZZ')
+four_of_a_kind = re.compile(r'(\w)\1{3}|(\w)\2{2}.*Z|(\w)\3.*ZZ|ZZZ')
+full_house = re.compile(r'(\w)\1{2}(\w)\2|(\w)\3(\w)\4{2}|(\w)\5(\w)\6Z')
+three_of_a_kind = re.compile(r'(\w)\1{2}|(\w)\2.*Z|ZZ')
 two_pairs = re.compile(r'(\w)\1.*(\w)\2')
-one_pair = re.compile(r'(\w)\1')
+one_pair = re.compile(r'(\w)\1|Z')
 
 patterns = [
     five_of_a_kind,
@@ -33,7 +33,7 @@ patterns = [
 ]
 
 def hand_rank(hand):
-    sorted_hand = ''.join(sorted(hand))
+    sorted_hand = ''.join(sorted(hand.replace('J', 'Z')))
     scores = [card_ranks[card] for card in hand]
 
     for i, pattern in enumerate(patterns):
