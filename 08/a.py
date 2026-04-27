@@ -11,11 +11,10 @@ with open('input.txt') as input:
     steps = 0
     current_key = 'AAA'
 
-    while True:
-        direction = head[steps % len(head)]
-        left, right = graph[current_key]
-        current_key = left if direction == 'L' else right
-        steps += 1
-        if current_key == 'ZZZ':
-            print(steps)
-            break
+    while current_key != 'ZZZ':
+            direction = head[steps % len(head)]
+            left, right = graph[current_key]
+            current_key = left if direction == 'L' else right
+            steps += 1
+
+    print(steps)
