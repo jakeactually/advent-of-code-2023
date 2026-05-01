@@ -14,12 +14,12 @@ with open('input.txt') as input:
             for i in range(len(series) - 1):
                 next_series.append(series[i + 1] - series[i])
 
-            stack.append(series)
+            stack.append(series[::-1])
             series = next_series
         
         for i in reversed(range(len(stack) - 1)):
             stack[i].append(
-                stack[i][-1] + stack[i + 1][-1]
+                stack[i][-1] - stack[i + 1][-1]
             )
 
         total += stack[0][-1]
