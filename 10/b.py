@@ -31,7 +31,7 @@ def can_connect(char1, char2, direction):
     return char2 in tags and direction in tags[char2] and opposite_direction[direction] in tags[char1]
 
 with open('input.txt') as input:
-    matrix = [list(line) for line in input]
+    matrix = [list(line.rstrip('\n')) for line in input]
     height = len(matrix)
     width = len(matrix[0])
     start = (0, 0)
@@ -50,29 +50,57 @@ with open('input.txt') as input:
             if char in tags and direction in tags[char]:
                 candidates.append((mx, my))
 
-    dq = deque(candidates)
+    current, *goals = candidates
+    path = [start, current]
 
-    for _ in range(len(dq)):
-        current, *goals = list(dq)
-        path = [start, current]
+    while not any(current == goal for goal in goals):
+        cx, cy = current
+        current_char = matrix[cy][cx]
 
-        while not any(current == goal for goal in goals):
-            cx, cy = current
-            current_char = matrix[cy][cx]
+        for ox, oy, direction in cardinals:
+            mx, my = cx + ox, cy + oy
 
-            for ox, oy, direction in cardinals:
-                mx, my = cx + ox, cy + oy
+            if is_point_in_bounds(mx, my, width, height):
+                next_char = matrix[my][mx]
 
-                if is_point_in_bounds(mx, my, width, height):
-                    next_char = matrix[my][mx]
+                if (mx, my) not in path and can_connect(current_char, next_char, direction):
+                    current = (mx, my)
+                    path.append(current)
+                    break                    
+        else:
+            break
 
-                    if (mx, my) not in path and can_connect(current_char, next_char, direction):
-                        current = (mx, my)
-                        path.append(current)
-                        break                    
+    # https://www.reddit.com/r/adventofcode/comments/18evyu9/comment/keaz25j/
+
+    territory = 0
+    is_inside = False
+    starting_joint = None
+    matrix[start[1]][start[0]] = 'L'
+
+    for y in range(height):
+        for x in range(width):
+            tile = matrix[y][x]
+
+            if (x, y) not in path:
+                if is_inside:
+                    territory += 1
             else:
-                break
+                if tile == '|':
+                    is_inside = not is_inside
+                elif tile in ('F', 'L'):
+                    assert starting_joint is None
+                    starting_joint = tile
+                elif tile == 'J':
+                    if starting_joint == 'F':
+                        is_inside = not is_inside
+                    else:
+                        assert starting_joint == 'L'
+                    starting_joint = None
+                elif tile == '7':
+                    if starting_joint == 'L':
+                        is_inside = not is_inside
+                    else:
+                        assert starting_joint == 'F'
+                    starting_joint = None
 
-        print(len(path) / 2)
-        dq.rotate(1)
-        break
+    print(territory)
