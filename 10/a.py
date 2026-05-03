@@ -50,29 +50,22 @@ with open('input.txt') as input:
             if char in tags and direction in tags[char]:
                 candidates.append((mx, my))
 
-    dq = deque(candidates)
+    current, *goals = candidates
+    path = set([start, current])
 
-    for _ in range(len(dq)):
-        current, *goals = list(dq)
-        path = [start, current]
+    while not any(current == goal for goal in goals):
+        cx, cy = current
+        current_char = matrix[cy][cx]
 
-        while not any(current == goal for goal in goals):
-            cx, cy = current
-            current_char = matrix[cy][cx]
+        for ox, oy, direction in cardinals:
+            mx, my = cx + ox, cy + oy
 
-            for ox, oy, direction in cardinals:
-                mx, my = cx + ox, cy + oy
+            if is_point_in_bounds(mx, my, width, height):
+                next_char = matrix[my][mx]
 
-                if is_point_in_bounds(mx, my, width, height):
-                    next_char = matrix[my][mx]
+                if (mx, my) not in path and can_connect(current_char, next_char, direction):
+                    current = (mx, my)
+                    path.add(current)
+                    break
 
-                    if (mx, my) not in path and can_connect(current_char, next_char, direction):
-                        current = (mx, my)
-                        path.append(current)
-                        break                    
-            else:
-                break
-
-        print(len(path) / 2)
-        dq.rotate(1)
-        break
+    print(len(path) // 2)

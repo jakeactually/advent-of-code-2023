@@ -1,6 +1,3 @@
-
-from collections import deque
-
 tags = {
     'F': ['top', 'left'],
     'L': ['bottom', 'left'],
@@ -51,7 +48,7 @@ with open('input.txt') as input:
                 candidates.append((mx, my))
 
     current, *goals = candidates
-    path = [start, current]
+    path = set([start, current])
 
     while not any(current == goal for goal in goals):
         cx, cy = current
@@ -65,10 +62,8 @@ with open('input.txt') as input:
 
                 if (mx, my) not in path and can_connect(current_char, next_char, direction):
                     current = (mx, my)
-                    path.append(current)
-                    break                    
-        else:
-            break
+                    path.add(current)
+                    break
 
     # https://www.reddit.com/r/adventofcode/comments/18evyu9/comment/keaz25j/
 
@@ -88,19 +83,14 @@ with open('input.txt') as input:
                 if tile == '|':
                     is_inside = not is_inside
                 elif tile in ('F', 'L'):
-                    assert starting_joint is None
                     starting_joint = tile
                 elif tile == 'J':
                     if starting_joint == 'F':
                         is_inside = not is_inside
-                    else:
-                        assert starting_joint == 'L'
                     starting_joint = None
                 elif tile == '7':
                     if starting_joint == 'L':
                         is_inside = not is_inside
-                    else:
-                        assert starting_joint == 'F'
                     starting_joint = None
 
     print(territory)
