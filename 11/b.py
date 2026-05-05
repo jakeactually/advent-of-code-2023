@@ -23,7 +23,7 @@ with open('input.txt') as input:
     for x, y in galaxies:
         empty_columns_before = len([c for c in empty_columns if c < x])
         empty_rows_before = len([r for r in empty_rows if r < y])
-        mapped.append((x + empty_columns_before, y + empty_rows_before))
+        mapped.append((x + empty_columns_before * 999999, y + empty_rows_before * 999999))
 
     total = 0
 
