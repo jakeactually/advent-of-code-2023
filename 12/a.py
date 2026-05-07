@@ -1,5 +1,3 @@
-from collections import deque
-
 with open('input.txt') as input:
     total = 0
 
@@ -8,42 +6,38 @@ with open('input.txt') as input:
         list_springs = list(springs)
         int_counts = [int(i) for i in counts.split(',')]
         
-        stack = [([], False, [], list_springs)]
-        result = []
-
-        def stack_append(tuple):
-            # print(tuple)
-            stack.append(tuple)
+        stack = [([], False, list_springs)]
 
         while stack:
-            (groups, in_group, consumed, springs) = stack.pop()
+            (groups, in_group, springs) = stack.pop()
 
             if not springs:
                 if groups == int_counts:
-                    result.append(groups)
+                    total += 1
                 continue
 
             [x, *xs] = springs
 
             match x:
                 case '?':
-                    stack_append((groups.copy(), in_group, consumed, ['#', *xs]))
-                    stack_append((groups.copy(), in_group, consumed, ['.', *xs]))
+                    stack.append((groups, in_group, ['#', *xs]))
+                    stack.append((groups.copy(), in_group, ['.', *xs]))
                 case '#':
                     if not in_group:
                         groups.append(0)
-                    group_index = len(groups) - 1
-                    groups[group_index] += 1
-                    if group_index < len(int_counts) and groups[group_index] <= int_counts[group_index]:
-                        stack_append((groups.copy(), True, [*consumed, '#'], xs))
+
+                    gi = len(groups) - 1
+                    groups[gi] += 1
+
+                    if gi < len(int_counts) and groups[gi] <= int_counts[gi]:
+                        stack.append((groups, True, xs))
                 case '.':
                     if in_group:
-                        group_index = len(groups) - 1
-                        if groups[group_index] == int_counts[group_index]:
-                            stack_append((groups.copy(), False, [*consumed, '.'], xs))
+                        gi = len(groups) - 1
+                        
+                        if groups[gi] == int_counts[gi]:
+                            stack.append((groups, False, xs))
                     else:
-                        stack_append((groups.copy(), False, [*consumed, '.'], xs))
-        
-        total += len(result)
+                        stack.append((groups, False, xs))
 
     print(total)
