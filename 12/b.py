@@ -1,56 +1,39 @@
 with open('input.txt') as input:
-    lines = input.read().splitlines()
-    sorted_lines = sorted(lines, key = lambda l: l.count('?'))
     total = 0
 
-    for line in sorted_lines:
+    for line in input:
         [springs, counts] = line.strip().split(' ')
-        list_springs = ([*springs, '?'] * 5)[:-1]
-        int_counts = [int(i) for i in counts.split(',')] * 5
+        list_springs = list(springs)
+        int_counts = [int(i) for i in counts.split(',')]
         
-        stack = [([], False, list_springs)]
-        visited = set()
+        stack = [([], int_counts)]
 
         while stack:
-            (groups, in_group, springs) = stack.pop()
-
-            if f'{groups} ' + ''.join(springs) in set():
+            positions, counts = stack.pop()
+            
+            if not counts:
+                print(positions)
+                total += 1
                 continue
 
-            visited.add(f'{groups} ' + ''.join(springs))
+            [c, *cs] = counts
+            
+            start = positions[-1] if positions else 0
+            
+            for i in range(start, len(list_springs) - sum(cs) - len(cs) + 1 - c):
+                valid = True
+                
+                for j in range(i, i + c):
+                    if list_springs[j] == '.':
+                        valid = False
 
-            if not springs:
-                if groups == int_counts:
-                    total += 1
-                continue
+                if (i + c) < len(list_springs) and list_springs[i + c] == '#':
+                    valid = False
 
-            if len(springs) < sum(int_counts) - sum(groups):
-                continue
+                if i > 0 and list_springs[i - 1] == '#':
+                    valid = False
 
-            print(groups, springs)
-
-            [x, *xs] = springs
-
-            match x:
-                case '?':
-                    stack.append((groups, in_group, ['#', *xs]))
-                    stack.append((groups.copy(), in_group, ['.', *xs]))
-                case '#':
-                    if not in_group:
-                        groups.append(0)
-
-                    gi = len(groups) - 1
-                    groups[gi] += 1
-
-                    if gi < len(int_counts) and groups[gi] <= int_counts[gi]:
-                        stack.append((groups, True, xs))
-                case '.':
-                    if in_group:
-                        gi = len(groups) - 1
-                        
-                        if groups[gi] == int_counts[gi]:
-                            stack.append((groups, False, xs))
-                    else:
-                        stack.append((groups, False, xs))
+                if valid:
+                    stack.append(([*positions, i + c + 1], cs))
 
     print(total)
