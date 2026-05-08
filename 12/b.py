@@ -6,19 +6,27 @@ with open('input.txt') as input:
         list_springs = list(springs)
         int_counts = [int(i) for i in counts.split(',')]
         
-        stack = [([], int_counts)]
+        stack = [([], [], int_counts)]
 
         while stack:
-            positions, counts = stack.pop()
+            positions, groups, counts = stack.pop()
             
             if not counts:
-                print(positions)
-                total += 1
+                ranges = [range(p, p + g) for p, g in zip(positions, groups)]
+                valid = True
+
+                for i, s in enumerate(list_springs):
+                    if s == '#' and not any(i in r for r in ranges):
+                        valid = False
+                
+                if valid:
+                    total += 1
+                
                 continue
 
             [c, *cs] = counts
             
-            start = positions[-1] if positions else 0
+            start = positions[-1] + groups[-1] + 1 if positions else 0
             
             for i in range(start, len(list_springs) - sum(cs) - len(cs) + 1 - c):
                 valid = True
@@ -33,7 +41,10 @@ with open('input.txt') as input:
                 if i > 0 and list_springs[i - 1] == '#':
                     valid = False
 
+                if list_springs[i + c:].count('#') > sum(cs):
+                    valid = False
+
                 if valid:
-                    stack.append(([*positions, i + c + 1], cs))
+                    stack.append(([*positions, i], [*groups, c], cs))
 
     print(total)
