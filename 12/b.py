@@ -12,15 +12,15 @@ def count_poss(pos, hints):
         return tuple(len(s) for s in spring_regex.findall(pos)) == hints
     
     i = pos.index('?')
-    ranges = [(m.start(), m.end()) for m in springs_regex.finditer(pos[:i + 1])]
-    lr = len(ranges)
-    diffs = [e - s - 1 for s, e in ranges]
+    sb_matches = springs_regex.finditer(pos[:i + 1])
+    springs_before = [{'end': m.end(), 'size': len(m.group()) - 1} for m in sb_matches]
+    sbl = len(springs_before)
+    old_hints, new_hints = hints[:sbl], hints[sbl:] 
 
-    if len(hints) < lr or any(d != h for d, h in zip(diffs, hints)):
+    if tuple(s['size'] for s in springs_before) != old_hints:
         return 0
 
-    j = 0 if lr == 0 else ranges[-1][1]
-    new_hints = hints[lr:]    
+    j = 0 if sbl == 0 else springs_before[-1]['end']
     before, after = pos[j : i], pos[i + 1:]
 
     return sum([
