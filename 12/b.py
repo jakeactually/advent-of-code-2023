@@ -1,16 +1,21 @@
-with open('input.txt') as input:
+with open('12/input.txt') as input:
     total = 0
 
     for line in input:
         [springs, counts] = line.strip().split(' ')
-        list_springs = list(springs)
-        int_counts = [int(i) for i in counts.split(',')]
+        list_springs = ([*springs, '?'] * 5)[:-1]
+        int_counts = [int(i) for i in counts.split(',')] * 5
         
         stack = [([], [], int_counts)]
+        cache = set()
 
         while stack:
             positions, groups, counts = stack.pop()
-            
+
+            if f'{positions}' in cache:
+                total += 1
+                continue
+
             if not counts:
                 ranges = [range(p, p + g) for p, g in zip(positions, groups)]
                 valid = True
@@ -21,6 +26,7 @@ with open('input.txt') as input:
                 
                 if valid:
                     total += 1
+                    cache.add(f'{positions}')
                 
                 continue
 
