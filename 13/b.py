@@ -17,7 +17,7 @@ with open('input.txt') as input:
             top = m[:y][-cut:]
             bottom = np.flipud(m[y:][:cut])
 
-            if np.array_equal(top, bottom):
+            if np.count_nonzero(top != bottom) == 1:
                 total += y * 100
                 break
 
@@ -28,7 +28,7 @@ with open('input.txt') as input:
             top = m[:y][-cut:]
             bottom = np.flipud(m[y:][:cut])
 
-            if np.array_equal(top, bottom):
+            if np.count_nonzero(top != bottom) == 1:
                 total += y
                 break
     
