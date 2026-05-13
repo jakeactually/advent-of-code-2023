@@ -12,18 +12,7 @@ with open('input.txt') as input:
     total = 0
 
     for m in matrices:
-        for y in range(1, len(m) - 1):
-            cut = min(y, len(m) - y)
-            top = m[:y][-cut:]
-            bottom = np.flipud(m[y:][:cut])
-
-            if np.array_equal(top, bottom):
-                total += y
-                break
-
-        m = m.T
-
-        for y in range(1, len(m) - 1):
+        for y in range(1, len(m)):
             cut = min(y, len(m) - y)
             top = m[:y][-cut:]
             bottom = np.flipud(m[y:][:cut])
@@ -31,6 +20,16 @@ with open('input.txt') as input:
             if np.array_equal(top, bottom):
                 total += y * 100
                 break
+
+        m = m.T
+
+        for y in range(1, len(m)):
+            cut = min(y, len(m) - y)
+            top = m[:y][-cut:]
+            bottom = np.flipud(m[y:][:cut])
+
+            if np.array_equal(top, bottom):
+                total += y
+                break
     
     print(total)
-        
