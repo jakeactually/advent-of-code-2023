@@ -8,24 +8,15 @@ def get_positions(matrix, char):
 
     return s
 
-with open('input.txt') as input:
-    lines = input.read().splitlines()
-    matrix = [list(s) for s in lines]
+def roll(current_balls, axis_1_length, axis_2_positions):
+    new_balls = set()
 
-    balls_set = get_positions(matrix, 'O')
-    walls_set = get_positions(matrix, '#')
-
-    height = len(matrix)
-    width = len(matrix[0])
-
-    total = 0
-
-    for x in range(width):
+    for x in range(axis_1_length):
         collecting_balls = True
         chunks = [[]]
 
-        for y in reversed(range(height)):
-            if (x, y) in balls_set:
+        for y in axis_2_positions:
+            if (x, y) in current_balls:
                 if not collecting_balls:                    
                     chunks.append([])
                 
@@ -36,13 +27,41 @@ with open('input.txt') as input:
                 chunks[-1].append((x, y, False))
                 collecting_balls = False
 
+        start = axis_2_positions[0]
+        end = axis_2_positions[-1]
+        sign = 1 if start > end else -1
+
         for chunk in chunks:
-            balls = [y for (x, y, is_ball) in chunk if is_ball]
-            walls = [y for (x, y, is_ball) in chunk if not is_ball]
+            balls = [y for (_, y, is_ball) in chunk if is_ball]
+            walls = [y for (_, y, is_ball) in chunk if not is_ball]
 
-            first_wall = walls[0] + 1 if walls else 0
-            mapped_balls = [height - first_wall - i for i in range(len(balls))]
+            if not balls:
+                continue
 
-            total += sum(mapped_balls)
+            first_wall = walls[0] + sign if walls else end
+            new_balls |= set([(x, first_wall + i * sign) for i in range(len(balls))])
+    
+    return new_balls
 
-    print(total)
+with open('input.txt') as input:
+    lines = input.read().splitlines()
+    matrix = [list(s) for s in lines]
+
+    balls_set = get_positions(matrix, 'O')
+    walls_set = get_positions(matrix, '#')
+
+    height = len(matrix)
+    width = len(matrix[0])
+
+    new_balls = roll(balls_set, width, list(range(height)))
+
+    for y in range(height):
+        for x in range(width):
+            if (x, y) in new_balls:
+                print('0', end='')
+            elif (x, y) in walls_set:
+                print('#', end='')
+            else:
+                print('.', end='')
+
+        print()
