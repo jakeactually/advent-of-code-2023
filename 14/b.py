@@ -54,13 +54,13 @@ def cycle(current_balls):
     balls = roll(balls, width, list(range(height)), False)
     balls = roll(balls, height, list(range(width)), True)
 
-    return balls
+    return frozenset(balls)
 
 with open('input.txt') as input:
     lines = input.read().splitlines()
     matrix = [list(s) for s in lines]
 
-    balls_set = get_positions(matrix, 'O')
+    balls_set = frozenset(get_positions(matrix, 'O'))
     walls_set = get_positions(matrix, '#')
 
     height = len(matrix)
@@ -70,13 +70,13 @@ with open('input.txt') as input:
     set_to_count = {}
     count_to_set = {}
 
-    while frozenset(balls_set) not in set_to_count:
-        set_to_count[frozenset(balls_set)] = cycle_count
-        count_to_set[cycle_count] = frozenset(balls_set)
+    while balls_set not in set_to_count:
+        set_to_count[balls_set] = cycle_count
+        count_to_set[cycle_count] = balls_set
         balls_set = cycle(balls_set)
         cycle_count += 1
 
-    loop_start = set_to_count[frozenset(balls_set)]
+    loop_start = set_to_count[balls_set]
     loop_end = cycle_count
     loop_size = loop_end - loop_start
     goal = loop_start + (1000000000 - loop_start) % loop_size
