@@ -1,5 +1,14 @@
+def hash(string):
+    current = 0
 
-import re
+    for char in string:
+        current += ord(char)
+        current *= 17
+        current %= 256
+
+    return current
 
 with open('input.txt') as input:
-    print(input)
+    steps = input.read().strip().split(',')
+    total = sum(hash(step) for step in steps)
+    print(total)
