@@ -1,8 +1,8 @@
 direction_to_delta = {
-    'R': (1, 0),
-    'L': (-1, 0),
-    'U': (0, -1),
-    'D': (0, 1)
+    '0': (1, 0),
+    '2': (-1, 0),
+    '3': (0, -1),
+    '1': (0, 1)
 }
 
 def shoelace(points):
@@ -24,15 +24,18 @@ def shoelace(points):
     return abs(area) / 2
 
 with open('input.txt') as input:
-    steps = [line.split() for line in input.read().splitlines()]
+    hex_numbers = [line[-8:-1] for line in input.read().splitlines()]
     points = []
     current = (0, 0)
     perimeter = 0
 
-    for (dir, size, _) in steps:
+    for hex_num in hex_numbers:
+        dir = hex_num[-1]
+        size = int(hex_num[1:-1], 16)
+
         (ox, oy) = direction_to_delta[dir]
         points.append(current)
-        current = (current[0] + int(size) * ox, current[1] + int(size) * oy)
-        perimeter += int(size)
+        current = (current[0] + size * ox, current[1] + size * oy)
+        perimeter += size
 
     print(shoelace(points) + perimeter // 2 + 1)
