@@ -10,6 +10,11 @@ def before_or_after(cond, before, after):
     else:
         return min(before, after)
 
+def branch(pending_parts, positive, next_flow_key):
+    positive['current_flow_key'] = next_flow_key
+    positive['current_flow_index'] = 0
+    pending_parts.append(positive)
+
 with open('input.txt') as input:
     flows_text, parts_text = input.read().split('\n\n')
     flows = {}
@@ -46,10 +51,6 @@ with open('input.txt') as input:
     }]
 
     while pending_parts:
-        for p in pending_parts:
-            print(p)
-        print()
-
         current_part = pending_parts.pop()       
         current_flow_key = current_part['current_flow_key']
         current_flow = flows[current_flow_key]
@@ -64,9 +65,7 @@ with open('input.txt') as input:
 
         if ':' not in step:
             positive = current_part.copy()
-            positive['current_flow_key'] = step
-            positive['current_flow_index'] = 0
-            pending_parts.append(positive)
+            branch(pending_parts, positive, step)
             continue
 
         exp, next_flow_key = step.split(':')
@@ -81,28 +80,23 @@ with open('input.txt') as input:
             if next_flow_key == 'A':
                 accepted_parts.append(positive)
             else:
-                positive['current_flow_key'] = next_flow_key
-                positive['current_flow_index'] = 0
-                pending_parts.append(positive)
+                branch(pending_parts, positive, next_flow_key)
 
         negative = current_part.copy()
-        next_cond, next_limit = invert_cond_and_limit(cond, limit)
-        negative[next_cond] = before_or_after(next_cond, negative[next_cond], next_limit)
+        inv_cond, inv_limit = invert_cond_and_limit(cond, limit)
+        negative[inv_cond] = before_or_after(inv_cond, negative[inv_cond], inv_limit)
         negative['current_flow_index'] += 1
         pending_parts.append(negative)
 
     total = 0
 
     for p in accepted_parts:
-        print(p)
         product = 1
 
         for c in 'xmas':
             mult = p[c + '<'] - p[c + '>'] - 1
-            print(c, mult)
             product *= mult
 
-        print('product', product)
         total += product
 
-    print('total', total)
+    print(total)
