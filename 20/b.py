@@ -29,53 +29,48 @@ with open('input.txt') as text_input:
             if receiver in modules:
                 modules[receiver].memory[module.tag] = False
 
-    pulses = None
-    high = 0
-    low = 0
+    clusters = [('sj', 'vd'), ('vn', 'nd'),('tg', 'tx'),('kn', 'pc')]
 
-    def pulses_append(tuple):
-        global high, low
+    for start, end in clusters:
+        stop = False
+        button_press = 0
 
-        if tuple[1]:
-            high += 1
-        else:
-            low += 1
+        while not stop:
+            # _ = input('Press the button')
+            pulses = deque([('broadcaster', False, start)])
+            button_press += 1       
 
-        pulses.append(tuple)
+            while pulses:
+                sender, state, receiver = pulses.popleft()
+                # print(f'{sender} -{['low', 'high'][state]}-> {receiver}')
 
-    for _ in range(1000):
-        # _ = input('Press the button')
-        pulses = deque([('button', False, 'broadcaster')])
-        low += 1       
+                if receiver == end and not state:
+                    stop = True
+                    break
 
-        while pulses:
-            sender, state, receiver = pulses.popleft()
-            # print(f'{sender} -{['low', 'high'][state]}-> {receiver}')
+                if receiver not in modules:
+                    continue
 
-            if receiver not in modules:
-                continue
+                module = modules[receiver]
 
-            module = modules[receiver]
-
-            if module.tag == 'broadcaster':
-                for next_receiver in module.receivers:
-                    pulses_append((module.tag, state, next_receiver))
-            else:                
-                if module.type == '%':
-                    if state:
-                        continue
-                    module.memory['global'] = not module.memory.get('global', False)
-                
-                if module.type == '&':
-                    module.memory[sender] = state
-
-                for next_receiver in module.receivers:
+                if module.tag == 'broadcaster':
+                    for next_receiver in module.receivers:
+                        pulses.append((module.tag, state, next_receiver))
+                else:                
                     if module.type == '%':
-                        pulses_append((module.tag, module.memory['global'], next_receiver))
+                        if state:
+                            continue
+                        module.memory['global'] = not module.memory.get('global', False)
                     
                     if module.type == '&':
-                        conjunction = not all(module.memory.values())
-                        pulses_append((module.tag, conjunction, next_receiver))
-    
-    print(f'high {high} low {low}')
-    print(high * low)
+                        module.memory[sender] = state
+
+                    for next_receiver in module.receivers:
+                        if module.type == '%':
+                            pulses.append((module.tag, module.memory['global'], next_receiver))
+                        
+                        if module.type == '&':
+                            conjunction = not all(module.memory.values())
+                            pulses.append((module.tag, conjunction, next_receiver))
+
+        print(button_press)
