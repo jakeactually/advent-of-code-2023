@@ -1,38 +1,46 @@
-import re
-from itertools import combinations
+# https://www.reddit.com/r/adventofcode/comments/18o7014/comment/kefhah0/
 
-def points_in_line(bounds):
-    _, start, end = bounds
-    x1, y1, _ = start
-    x2, y2, _ = end
+from collections import defaultdict
 
-    for x in range(x1, x2 + 1):
-        for y in range(y1, y2 + 1):
-            yield x, y
+brick = []
+for line in open("input.txt").read().split("\n"):
+    a,b = line.split("~")
+    a = list(map(int, a.split(",")))
+    b = list(map(int, b.split(",")))
+    brick.append((a,b))
 
-with open('input.txt') as input:
-    bricks = []
+n = len(brick)
 
-    for i, line in enumerate(input.readlines()):
-        start, end = (list(map(int, re.findall(r'\d+', part))) for part in line.split('~'))
-        bricks.append((chr(i + 97), start, end))
+brick.sort(key=lambda x: x[0][2])
 
-    supported = {}
-    supporting = {}
+highest = defaultdict(lambda:(0,-1))
+bad = set()
+graph = [[] for i in range(n)]
+for idx,b in enumerate(brick):
+    mxh = -1
+    support_set = set()
+    for x in range(b[0][0], b[1][0]+1):
+        for y in range(b[0][1], b[1][1]+1):
+            if highest[x,y][0] + 1 > mxh:
+                mxh = highest[x,y][0] + 1
+                support_set = {highest[x,y][1]}
+            elif highest[x,y][0] + 1 == mxh:
+                support_set.add(highest[x,y][1])
+    
+    for x in support_set:
+        if x != -1:
+            graph[x].append(idx)
 
-    for c in combinations(bricks, 2):
-        a, b = c
+    if len(support_set) == 1:
+        bad.add(support_set.pop())
+    
+    fall = b[0][2] - mxh
+    if fall > 0:
+        b[0][2] -= fall
+        b[1][2] -= fall
 
-        a_points = set(points_in_line(a))
-        b_points = set(points_in_line(b))
+    for x in range(b[0][0], b[1][0]+1):
+        for y in range(b[0][1], b[1][1]+1):
+            highest[x,y] = (b[1][2], idx)
 
-        if a_points & b_points:
-            tag = a[0]
-
-            if tag not in supported:
-                supported[tag] = []
-
-            supported[tag].append(b)
-
-    for k in supported:
-        print(k, supported[k])
+print(len(brick)-len(bad)+1)
